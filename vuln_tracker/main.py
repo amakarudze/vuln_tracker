@@ -5,6 +5,7 @@ import requests
 from fastapi import FastAPI
 
 from vuln_tracker.parsers import (
+    COLLECTION,
     parse_package_lock,
     parse_poetry_lock,
     parse_requirements,
@@ -63,9 +64,12 @@ def read_root():
             project_dependencies.append(
                 {"file_name": file_name, "status": "File not found."}
             )
+    dependencies = list(COLLECTION.find({"repository": "djangogirls"}))
+    for dependency in dependencies:
+        dependency["_id"] = str(dependency["_id"])
     return {
         "message": "File check completed.",
-        "dependency_files": project_dependencies,
+        "dependencies": dependencies,
     }
 
 
