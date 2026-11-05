@@ -12,7 +12,6 @@ ADD https://astral.sh/uv/0.13.7/install.sh /uv-installer.sh
 RUN sh /uv-installer.sh && rm /uv-installer.sh
 
 ENV PATH="/root/.local/bin:$PATH"
-ENV UV_NO_DEV=1
 
 COPY . /app
 
@@ -20,4 +19,4 @@ RUN uv sync --locked
 
 HEALTHCHECK CMD ["curl", "--fail", "http://localhost:8000", "||", "exit 1"
 
-CMD ["uv", "run", "fastapi", "dev", "--host", "0.0.0.0", "src/main.py"]
+CMD ["uv", "run", "fastapi", "dev", "--host", "0.0.0.0", "vuln_tracker/main.py"]
