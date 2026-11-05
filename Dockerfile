@@ -4,10 +4,8 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-RUN groupadd --system --gid 999 nonroot \
- && useradd --system --gid 999 --uid 999 --create-home nonroot
-
-RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
+RUN apt-get update && \
+apt-get install -y --no-install-recommends curl ca-certificates
 
 ADD https://astral.sh/uv/0.13.7/install.sh /uv-installer.sh
 
@@ -20,8 +18,6 @@ COPY . /app
 
 RUN uv sync --locked
 
-ENTRYPOINT []
-
-USER nonroot
+HEALTHCHECK CMD ["curl", "--fail", "http://localhost:8000", "||", "exit 1"
 
 CMD ["uv", "run", "fastapi", "dev", "--host", "0.0.0.0", "src/main.py"]

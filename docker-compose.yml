@@ -1,0 +1,34 @@
+services:
+  app:
+    build:
+      context: .
+    ports:
+      - 8000:8000
+    environment:
+        DBHOST: dbstorage
+        DBPORT: 27017
+        MONGO_DB: vulnerabilityDetector
+    networks:
+      - monitor-net
+      
+  dbstorage:
+    image: mongo
+    restart: always
+    command: --quiet --syslog
+    ports:
+      - 27017:27017
+    expose:
+      - "27017"
+    volumes:
+      - dbstorage:/data/db
+      - dbconfig:/data/configdb
+    networks:
+      - monitor-net
+    
+volumes:
+  dbstorage:
+  dbconfig:
+
+networks:
+  monitor-net:
+    driver: bridge
