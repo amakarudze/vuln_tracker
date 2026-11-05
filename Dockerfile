@@ -19,4 +19,4 @@ RUN uv sync --locked
 
 HEALTHCHECK CMD ["curl", "--fail", "http://localhost:8000", "||", "exit 1"
 
-CMD ["uv", "run", "fastapi", "dev", "--host", "0.0.0.0", "vuln_tracker/main.py"]
+CMD ["uv", "run", "--no-sync", "fastapi", "dev", "--host", "0.0.0.0", "vuln_tracker/main.py"]
