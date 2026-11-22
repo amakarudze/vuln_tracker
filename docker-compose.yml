@@ -1,5 +1,5 @@
 services:
-  app:
+  backend:
     build:
       context: .
     env_file:
@@ -29,7 +29,20 @@ services:
         MONGO_DB: vulnerabilityDetector
     networks:
       - monitor-net
-      
+  
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - 3000:3000
+    networks:
+      - monitor-net
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
   dbstorage:
     image: mongo
     restart: always

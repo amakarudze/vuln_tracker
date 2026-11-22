@@ -1,0 +1,18 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "description": "Frontend for vuln_tracker",
+  "license": "ISC",
+  "author": "Anna Makarudze",
+  "type": "commonjs",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "axios": "^1.21.1",
+    "express": "^5.3.0",
+    "express-validator": "^7.3.2",
+    "pug": "^3.0.4"
+  }
+}

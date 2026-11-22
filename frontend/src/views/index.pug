@@ -1,0 +1,34 @@
+
+extends layout
+
+block content
+  .container.mt-5
+    .row.justify-content-center
+      .col-md-8
+        form#repoForm
+          .mb-3
+            label.form-label(for="repoUrl") Repository URL
+            input#repoUrl.form-control(
+              type="url"
+              name="repoUrl"
+              placeholder="https://github.com/user/repo"
+              required
+            )
+
+          button#submitBtn.btn.btn-primary(type="submit") Submit
+
+        // Loading indicator
+        #loading.text-center.mt-4.d-none
+          .spinner-border.text-primary(role="status")
+            span.visually-hidden Loading...
+          p.mt-2 Analysing repository. Please wait...
+
+        // Error message
+        #error.alert.alert-danger.mt-4.d-none(role="alert")
+
+        // Analysis results
+        #results.mt-4.d-none
+          h3 Analysis Results
+          #resultsContent
+
+  script(src="/js/analyse.js" defer)
