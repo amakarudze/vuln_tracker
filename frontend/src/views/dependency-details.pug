@@ -1,0 +1,39 @@
+extends layout
+
+block content
+    .container.mt-4
+        h1= dependency.name
+
+        p
+            strong Ecosystem:
+            |  #{dependency.ecosystem}
+
+        p
+            strong Installed version:
+            |  #{dependency.version}
+
+        p
+            strong Source file:
+            |  #{dependency.source_file}
+
+        if dependency.package_path
+            p
+                strong Package path:
+                |  #{dependency.package_path}
+
+        if metadata
+            hr
+            h2 Package information
+
+            p
+                strong Latest version:
+                |  #{metadata.latest_version || 'Unknown'}
+
+            h3 Release history
+            if metadata.releases
+                pre= JSON.stringify(metadata.releases, null, 2)
+            else
+                p No release history available.
+
+        else
+            p Package metadata is unavailable.

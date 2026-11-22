@@ -15,6 +15,7 @@ app.get('/', (req, res) => {
     res.render('index');
 });
 
+
 app.post('/analyse', async (req, res) => {
     try {
         const { repoUrl } = req.body;
@@ -39,6 +40,31 @@ app.post('/analyse', async (req, res) => {
         });
     }
 });
+
+
+app.get('/dependencies/:id', async (req, res) => {
+    try {
+        const response = await fetch(
+            `http://backend:8000/dependencies/${req.params.id}`
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            return res.status(response.status).send(data.detail);
+        }
+
+        res.render('dependency-details', {
+            dependency: data.dependency,
+            metadata: data.metadata,
+        });
+
+    } catch (err) {
+        console.error('Error fetching dependency:', err);
+        res.status(500).send('Could not retrieve dependency details.');
+    }
+});
+
  
 app.set('view engine', 'pug');
 app.use(express.static(path.join(__dirname, 'public')));
