@@ -3,7 +3,6 @@ const express = require('express');
 const path = require('node:path');
 
 const app = express();
-const port = 3000;
 
 app.set('view engine', 'pug');
 app.use(express.json());
@@ -42,6 +41,4 @@ app.post('/analyse', async (req, res) => {
  
 app.set('view engine', 'pug');
 app.use(express.static(path.join(__dirname, 'public')));
-app.listen(port, '0.0.0.0', () => {
-  console.log(`Example app listening on port ${port}`);
-});
+module.exports = app;
