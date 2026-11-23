@@ -3,6 +3,35 @@ from urllib.parse import quote
 import httpx
 
 
+def extract_pypi_releases(releases: dict) -> dict:
+    """Extract release dates and file information from PyPI releases."""
+    release_history = {}
+
+    for version, files in releases.items():
+        file_details = [
+            {
+                "filename": file.get("filename"),
+                "upload_time": (
+                    file.get("upload_time_iso_8601") or file.get("upload_time")
+                ),
+                "url": file.get("url"),
+                "size": file.get("size"),
+                "package_type": file.get("packagetype"),
+                "requires_python": file.get("requires_python"),
+            }
+            for file in files
+        ]
+
+        dates = [file["upload_time"] for file in file_details if file["upload_time"]]
+
+        release_history[version] = {
+            "release_date": min(dates) if dates else None,
+            "files": file_details,
+        }
+
+    return release_history
+
+
 async def get_pypi_package_info(
     package_name: str,
     client: httpx.AsyncClient,
@@ -14,30 +43,51 @@ async def get_pypi_package_info(
         response.raise_for_status()
         data = response.json()
 
-        info = data["info"]
-        releases = data.get("releases", {})
+        info = data.get("info", {})
+        releases = extract_pypi_releases(data.get("releases", {}))
         latest_version = info.get("version")
 
-        release_history = {
-            version: [
-                {
-                    "filename": file.get("filename"),
-                    "upload_time": file.get("upload_time_iso_8601"),
-                    "url": file.get("url"),
-                    "size": file.get("size"),
-                    "package_type": file.get("packagetype"),
-                    "requires_python": file.get("requires_python"),
-                }
-                for file in files
-            ]
-            for version, files in releases.items()
-        }
+        latest_release = releases.get(latest_version, {})
 
-        latest_files = release_history.get(latest_version, [])
+        # These fields are publisher-provided metadata.
+        maintainers = []
+
+        if info.get("maintainer"):
+            maintainers.append(
+                {
+                    "name": info.get("maintainer"),
+                    "email": info.get("maintainer_email"),
+                    "role": "Maintainer",
+                    "source": "project_metadata",
+                }
+            )
+
+        if info.get("author"):
+            maintainers.append(
+                {
+                    "name": info.get("author"),
+                    "email": info.get("author_email"),
+                    "role": "Author",
+                    "source": "project_metadata",
+                }
+            )
+
+        # PyPI ownership information is not present for every project.
+        ownership = data.get("ownership") or {}
+
+        for role in ownership.get("roles", []):
+            maintainers.append(
+                {
+                    "name": role.get("user"),
+                    "email": None,
+                    "role": role.get("role"),
+                    "source": "pypi_ownership",
+                }
+            )
 
         return {
             "registry": "pypi",
-            "name": info.get("name"),
+            "name": info.get("name", package_name),
             "latest_version": latest_version,
             "summary": info.get("summary"),
             "description": info.get("description"),
@@ -49,10 +99,9 @@ async def get_pypi_package_info(
             "classifiers": info.get("classifiers"),
             "project_urls": info.get("project_urls"),
             "dependencies": info.get("requires_dist"),
-            "release_date": (
-                latest_files[0].get("upload_time") if latest_files else None
-            ),
-            "releases": release_history,
+            "maintainers": maintainers,
+            "release_date": latest_release.get("release_date"),
+            "releases": releases,
         }
 
     except httpx.HTTPStatusError as exc:
@@ -62,11 +111,11 @@ async def get_pypi_package_info(
             "lookup_error": f"PyPI returned HTTP {exc.response.status_code}",
         }
 
-    except httpx.RequestError as exc:
+    except (httpx.RequestError, ValueError) as exc:
         return {
             "registry": "pypi",
             "name": package_name,
-            "lookup_error": f"Could not reach PyPI: {exc}",
+            "lookup_error": f"Could not retrieve PyPI metadata: {exc}",
         }
 
 
@@ -101,6 +150,16 @@ async def get_npm_package_info(
 
         latest_metadata = versions.get(latest_version, {})
 
+        maintainers = [
+            {
+                "name": maintainer.get("name"),
+                "email": maintainer.get("email"),
+                "role": "Maintainer",
+                "source": "npm_registry",
+            }
+            for maintainer in data.get("maintainers", [])
+        ]
+
         return {
             "registry": "npm",
             "name": data.get("name", package_name),
@@ -108,7 +167,7 @@ async def get_npm_package_info(
             "description": data.get("description"),
             "license": latest_metadata.get("license"),
             "author": latest_metadata.get("author"),
-            "maintainers": data.get("maintainers", []),
+            "maintainers": maintainers,
             "repository": data.get("repository"),
             "homepage": data.get("homepage"),
             "keywords": data.get("keywords", []),
@@ -124,9 +183,9 @@ async def get_npm_package_info(
             "lookup_error": f"npm returned HTTP {exc.response.status_code}",
         }
 
-    except httpx.RequestError as exc:
+    except (httpx.RequestError, ValueError) as exc:
         return {
             "registry": "npm",
             "name": package_name,
-            "lookup_error": f"Could not reach npm: {exc}",
+            "lookup_error": f"Could not retrieve npm metadata: {exc}",
         }

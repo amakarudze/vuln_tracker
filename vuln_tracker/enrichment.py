@@ -1,4 +1,5 @@
 import asyncio
+from pathlib import PurePosixPath
 
 import httpx
 
@@ -14,6 +15,18 @@ PYTHON_FILES = {
 }
 
 
+def get_ecosystem(dependency: dict) -> str:
+    file_name = PurePosixPath(dependency["source_file"]).name
+
+    if file_name in PYTHON_FILES:
+        return "pypi"
+
+    if file_name == "package-lock.json":
+        return "npm"
+
+    raise ValueError(f"Unsupported dependency file: {dependency['source_file']}")
+
+
 async def enrich_dependencies(
     dependencies: list[dict],
     client: httpx.AsyncClient,
@@ -24,7 +37,7 @@ async def enrich_dependencies(
     lookups = {}
 
     for dependency in dependencies:
-        ecosystem = "pypi" if dependency["source_file"] in PYTHON_FILES else "npm"
+        ecosystem = get_ecosystem(dependency)
 
         key = (ecosystem, dependency["name"])
 
@@ -62,7 +75,7 @@ async def enrich_dependencies(
         )
 
     for dependency in dependencies:
-        ecosystem = "pypi" if dependency["source_file"] in PYTHON_FILES else "npm"
+        ecosystem = get_ecosystem(dependency)
 
         dependency["ecosystem"] = ecosystem
         dependency["package_key"] = f"{ecosystem}:{dependency['name']}"

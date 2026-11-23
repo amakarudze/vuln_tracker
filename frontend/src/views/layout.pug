@@ -10,6 +10,11 @@ html(lang="en")
       rel="stylesheet"
     )
 
+    link(
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    )
+
     link(rel="stylesheet" href="/css/sidebars.css")
 
   body
@@ -27,16 +32,19 @@ html(lang="en")
               data-bs-target="#home-collapse"
               aria-expanded="true"
             )
+              i.bi.bi-house.me-2
               | Home
 
             #home-collapse.collapse.show
               ul.btn-toggle-nav.list-unstyled.fw-normal.pb-1.small
                 li
-                  a.link-dark.rounded(href="/") Overview
+                  a.link-dark.rounded(href="/")
+                    i.bi.bi-house-door.me-2
+                    | Overview
                 li
-                  a.link-dark.rounded(href="#") Updates
-                li
-                  a.link-dark.rounded(href="#") Reports
+                  a.link-dark.rounded(href="#")
+                    i.bi.bi-clock.me-2
+                    | Recent activity
 
           li.mb-1
             button.btn.btn-toggle.align-items-center.rounded.collapsed(
@@ -44,37 +52,62 @@ html(lang="en")
               data-bs-target="#dashboard-collapse"
               aria-expanded="false"
             )
-              | Dashboard
+              i.bi.bi-folder2-open.me-2
+              | Projects
 
             #dashboard-collapse.collapse
               ul.btn-toggle-nav.list-unstyled.fw-normal.pb-1.small
                 li
-                  a.link-dark.rounded(href="#") Overview
+                  a.link-dark.rounded(href="/projects")
+                    i.bi.bi-collection.me-2
+                    | All analysed projects
                 li
-                  a.link-dark.rounded(href="#") Weekly
+                  a.link-dark.rounded(href="/projects/concerning")
+                    i.bi.bi-exclamation-triangle.me-2
+                    | Concerning projects
                 li
-                  a.link-dark.rounded(href="#") Monthly
+                  a.link-dark.rounded(href="/projects/unmaintained")
+                    i.bi.bi-folder-x.me-2
+                    | Unmaintained projects
                 li
-                  a.link-dark.rounded(href="#") Annually
+                  a.link-dark.rounded(href="/projects/recent")
+                    i.bi.bi-clock-history.me-2
+                    | Recently analysed
 
           li.mb-1
-            button.btn.btn-toggle.align-items-center.rounded.collapsed(
-              data-bs-toggle="collapse"
-              data-bs-target="#orders-collapse"
-              aria-expanded="false"
+            a.btn.btn-toggle.align-items-center.rounded.w-100.text-start(
+              href="/reports/vulnerabilities"
             )
-              | Orders
+              i.bi.bi-shield-exclamation.me-2
+              | Vulnerability reports
 
-            #orders-collapse.collapse
-              ul.btn-toggle-nav.list-unstyled.fw-normal.pb-1.small
-                li
-                  a.link-dark.rounded(href="#") New
-                li
-                  a.link-dark.rounded(href="#") Processed
-                li
-                  a.link-dark.rounded(href="#") Shipped
-                li
-                  a.link-dark.rounded(href="#") Returned
+          li.mb-1
+            a.btn.btn-toggle.align-items-center.rounded.w-100.text-start(
+              href="/reports/dependencies"
+            )
+              i.bi.bi-box-seam.me-2
+              | Dependency reports
+
+          li.mb-1
+            a.btn.btn-toggle.align-items-center.rounded.w-100.text-start(
+              href="/maintenance"
+            )
+              i.bi.bi-activity.me-2
+              | Maintenance activity
+
+          li.mb-1
+            a.btn.btn-toggle.align-items-center.rounded.w-100.text-start(
+              href="/forecasts"
+            )
+              i.bi.bi-graph-up-arrow.me-2
+              | Forecasts
+
+          li.mb-1
+            a.btn.btn-toggle.align-items-center.rounded.w-100.text-start(
+              href="/analysis-history"
+            )
+              i.bi.bi-clock-history.me-2
+              | Analysis history
 
           li.border-top.my-3
 
@@ -84,18 +117,27 @@ html(lang="en")
               data-bs-target="#account-collapse"
               aria-expanded="false"
             )
+              i.bi.bi-person-circle.me-2
               | Account
 
             #account-collapse.collapse
               ul.btn-toggle-nav.list-unstyled.fw-normal.pb-1.small
                 li
-                  a.link-dark.rounded(href="#") New...
+                  a.link-dark.rounded(href="#")
+                    i.bi.bi-plus-circle.me-2
+                    | New...
                 li
-                  a.link-dark.rounded(href="#") Profile
+                  a.link-dark.rounded(href="#")
+                    i.bi.bi-person.me-2
+                    | Profile
                 li
-                  a.link-dark.rounded(href="#") Settings
+                  a.link-dark.rounded(href="#")
+                    i.bi.bi-gear.me-2
+                    | Settings
                 li
-                  a.link-dark.rounded(href="#") Sign out
+                  a.link-dark.rounded(href="#")
+                    i.bi.bi-box-arrow-right.me-2
+                    | Sign out
 
       // Main content area
       .flex-grow-1.p-4

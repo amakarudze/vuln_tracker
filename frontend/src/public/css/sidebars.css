@@ -87,3 +87,19 @@ main {
 
 .fw-semibold { font-weight: 600; }
 .lh-tight { line-height: 1.25; }
+
+.btn-toggle i {
+    display: inline-block;
+    width: 1.25rem;
+    font-size: 1rem;
+}
+
+.btn-toggle-nav i {
+    display: inline-block;
+    width: 1.25rem;
+}
+
+.btn-toggle::before {
+    display: none !important;
+    content: none !important;
+}

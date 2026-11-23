@@ -29,11 +29,217 @@ block content
                 strong Latest version:
                 |  #{metadata.latest_version || 'Unknown'}
 
-            h3 Release history
-            if metadata.releases
-                pre= JSON.stringify(metadata.releases, null, 2)
+            
+        // Vulnerability information
+        .card.mb-4
+            .card-header
+                h4.mb-0 Vulnerability Information
+
+            .card-body
+                if vulnerabilityError
+                    .alert.alert-warning
+                        = vulnerabilityError
+
+                else if !vulnerabilityData
+                    .alert.alert-secondary
+                        | Vulnerability information has not yet been checked for this dependency.
+
+                else if vulnerabilityData.vulnerability_count === 0
+                    .alert.alert-success
+                        strong No known vulnerabilities found.
+                        p.mb-0
+                            | No vulnerabilities were reported for this package version.
+
+                else
+                    .d-flex.justify-content-between.align-items-center.mb-3
+                        div
+                            strong #{vulnerabilityData.vulnerability_count} distinct vulnerabilities
+                            br
+                            small.text-muted
+                                | #{vulnerabilityData.advisory_count} OSV advisory records
+
+                        small.text-muted
+                            | Last checked: #{new Date(vulnerabilityData.last_checked).toLocaleString()}
+
+                    each vulnerability in vulnerabilityData.vulnerabilities
+                        - let severity = 'Unknown'
+
+                        if vulnerability.database_specific && vulnerability.database_specific.severity
+                            - severity = vulnerability.database_specific.severity
+
+                        - let severityClass = 'secondary'
+
+                        if severity.toLowerCase() === 'critical'
+                            - severityClass = 'danger'
+                        else if severity.toLowerCase() === 'high'
+                            - severityClass = 'warning'
+                        else if severity.toLowerCase() === 'medium'
+                            - severityClass = 'info'
+
+                        .card.mb-3
+                            .card-body
+                                .d-flex.justify-content-between.align-items-start
+                                    h5.card-title
+                                        = vulnerability.id
+
+                                    span.badge(class=`bg-${severityClass}`)
+                                        = severity
+
+                                if vulnerability.summary
+                                    p.card-text
+                                        strong Summary:
+                                        |  #{vulnerability.summary}
+
+                                if vulnerability.details
+                                    details.mb-3
+                                        summary View details
+                                        p.mt-2
+                                            = vulnerability.details
+
+                                if vulnerability.advisory_ids && vulnerability.advisory_ids.length > 1
+                                    p
+                                        strong Related advisory IDs:
+                                    ul
+                                        each advisoryId in vulnerability.advisory_ids
+                                            li= advisoryId
+
+                                if vulnerability.aliases && vulnerability.aliases.length
+                                    p
+                                        strong Aliases:
+                                        |  #{vulnerability.aliases.join(', ')}
+
+                                if vulnerability.references && vulnerability.references.length
+                                    h6.mt-3 Advisory References
+
+                                    ul.list-unstyled
+                                        each reference in vulnerability.references
+                                            if reference.url && /^https?:\/\//i.test(reference.url)
+                                                li.mb-2
+                                                    a(
+                                                        href=reference.url
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                    )
+                                                        = reference.type || 'View advisory'
+                                                        |  ↗
+
+                                if vulnerability.affected && vulnerability.affected.length
+                                    h6.mt-3 Affected versions
+
+                                    each affectedPackage in vulnerability.affected
+                                        if affectedPackage.versions && affectedPackage.versions.length
+                                            p
+                                                strong Versions:
+                                                |  #{affectedPackage.versions.join(', ')}
+
+                                        if affectedPackage.ranges
+                                            each range in affectedPackage.ranges
+                                                if range.events
+                                                    p
+                                                        strong Version events:
+                                                        each event in range.events
+                                                            if event.introduced
+                                                                span.badge.bg-secondary.me-1
+                                                                    | Introduced: #{event.introduced}
+                                                            if event.fixed
+                                                                span.badge.bg-success.me-1
+                                                                    | Fixed: #{event.fixed}
+
+        // Package information and release history
+        if metadata
+            hr
+            h2 Package information
+
+            p
+                strong Latest version:
+                |  #{metadata.latest_version || 'Unknown'}
+
+            h3.mt-4 Release history
+
+            if releases && releases.length
+                .row
+                    each item in releases
+                        - const version = item[0]
+                        - const release = item[1]
+                        - const releaseDate = release.release_date ? new Date(release.release_date).toLocaleDateString() : 'Unknown'
+
+                        .col-md-6.col-lg-4.mb-3
+                            .card.h-100
+                                .card-body
+                                    h5.card-title Version #{version}
+
+                                    p.text-muted.mb-2
+                                        small
+                                            | Released: #{releaseDate}
+
+                                    if release.files && release.files.length
+                                        p.mb-2
+                                            strong Distribution files:
+                                            |  #{release.files.length}
+
+                                        ul.list-unstyled
+                                            each file in release.files
+                                                li.mb-2
+                                                    a(
+                                                        href=file.url
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                    )= file.filename
+
+                                                    if file.requires_python
+                                                        small.text-muted
+                                                            | Python #{file.requires_python}
+                                    else
+                                        p.text-muted No distribution files available.
             else
                 p No release history available.
-
         else
             p Package metadata is unavailable.
+    
+    hr
+    h3 GitHub contributors
+
+    if repositoryUrl
+        p
+            strong Repository:
+            | 
+            a(href=repositoryUrl target="_blank" rel="noopener noreferrer")
+                = repositoryUrl
+
+        if contributorError
+            p.text-muted= contributorError
+
+        else if contributors.length
+            .row
+                each contributor in contributors
+                    .col-md-6.mb-3
+                        .card.h-100
+                            .card-body
+                                .d-flex.align-items-center.mb-3
+                                    if contributor.avatar_url
+                                        img.rounded-circle.me-3(
+                                            src=contributor.avatar_url
+                                            alt=contributor.username
+                                            width="50"
+                                            height="50"
+                                        )
+
+                                    div
+                                        h5.mb-0
+                                            a(
+                                                href=contributor.profile_url
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            )= contributor.name || contributor.username
+
+                                        small.text-muted= '@' + contributor.username
+
+                                p Contributions: #{contributor.contributions}
+                                p First contribution: #{contributor.first_contribution_at || 'Unknown'}
+                                p Last contribution: #{contributor.last_contribution_at || 'Unknown'}
+
+        else
+            p No contributors found.
+
+    else
+        p No GitHub repository URL available for this package.
