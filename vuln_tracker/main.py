@@ -23,11 +23,10 @@ from vuln_tracker.database import (
     start_analysis,
 )
 from vuln_tracker.enrichment import enrich_dependencies
-from vuln_tracker.github import get_github_contributors
+from vuln_tracker.github import get_github_contributors, get_username_and_repo
 from vuln_tracker.osv import deduplicate_vulnerabilities, get_vulnerabilities
-from vuln_tracker.parsers import (
-    get_username_and_repo,
-    parse_package_lock,
+from vuln_tracker.parsers.javascript import parse_package_lock
+from vuln_tracker.parsers.python import (
     parse_poetry_lock,
     parse_requirements,
     parse_uv_lock,

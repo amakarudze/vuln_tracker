@@ -7,6 +7,15 @@ GITHUB_API = "https://api.github.com"
 MAX_CONCURRENT_REQUESTS = 10
 
 
+def get_username_and_repo(repoUrl: str):
+    match = re.search(r"github\.com/([^/]+)/([^/]+)/?$", repoUrl)
+
+    if match:
+        username = match.group(1)
+        repo = match.group(2)
+        return username, repo
+
+
 def get_commit_date(commit: dict) -> str | None:
     """Get the Git author date, falling back to the committer date."""
     commit_data = commit.get("commit", {})
