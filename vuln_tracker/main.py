@@ -22,8 +22,8 @@ from vuln_tracker.database import (
     save_vulnerabilities,
     start_analysis,
 )
-from vuln_tracker.enrichment import enrich_dependencies
 from vuln_tracker.github import get_github_contributors, get_username_and_repo
+from vuln_tracker.metadata import enrich_dependencies
 from vuln_tracker.osv import deduplicate_vulnerabilities, get_vulnerabilities
 from vuln_tracker.parsers.javascript import parse_package_lock
 from vuln_tracker.parsers.python import (

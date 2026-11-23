@@ -1,5 +1,6 @@
 import asyncio
 import re
+from urllib.parse import urlparse
 
 import httpx
 
@@ -7,13 +8,24 @@ GITHUB_API = "https://api.github.com"
 MAX_CONCURRENT_REQUESTS = 10
 
 
-def get_username_and_repo(repoUrl: str):
-    match = re.search(r"github\.com/([^/]+)/([^/]+)/?$", repoUrl)
+def get_username_and_repo(repo_url: str) -> tuple[str, str]:
+    parsed_url = urlparse(repo_url)
 
-    if match:
-        username = match.group(1)
-        repo = match.group(2)
-        return username, repo
+    if parsed_url.hostname not in {"github.com", "www.github.com"}:
+        raise ValueError("Only GitHub repository URLs are supported.")
+
+    parts = parsed_url.path.strip("/").split("/")
+
+    if len(parts) != 2:
+        raise ValueError("Invalid GitHub repository URL.")
+
+    username, repository = parts
+    repository = repository.removesuffix(".git")
+
+    if not username or not repository:
+        raise ValueError("Invalid GitHub repository URL.")
+
+    return username, repository
 
 
 def get_commit_date(commit: dict) -> str | None:

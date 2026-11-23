@@ -3,7 +3,7 @@ from pathlib import PurePosixPath
 
 import httpx
 
-from vuln_tracker.registries import (
+from vuln_tracker.parsers.registry import (
     get_npm_package_info,
     get_pypi_package_info,
 )
