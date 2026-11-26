@@ -1,4 +1,4 @@
-FROM python:3.15.2-slim-bookworm
+FROM python:3.14.10-slim-bookworm
 
 ENV PYTHONUNBUFFERED=1
 
@@ -12,6 +12,7 @@ ADD https://astral.sh/uv/0.13.7/install.sh /uv-installer.sh
 RUN sh /uv-installer.sh && rm /uv-installer.sh
 
 ENV PATH="/root/.local/bin:$PATH"
+ENV PATH="/app/.venv/bin:/root/.local/bin:$PATH"
 
 COPY . /app
 

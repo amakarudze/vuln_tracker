@@ -57,43 +57,41 @@ function displayResults(data) {
     message.textContent = data.message;
     resultsContent.appendChild(message);
 
-    data.dependencies.forEach(file => {
-        const section = document.createElement('div');
-        section.classList.add('card', 'mb-3');
+    if (!data.dependencies || data.dependencies.length === 0) {
+        const emptyMessage = document.createElement('p');
+        emptyMessage.textContent = 'No dependencies found.';
+        resultsContent.appendChild(emptyMessage);
+    } else {
+        data.dependencies.forEach(dependency => {
+            const card = document.createElement('div');
+            card.classList.add('card', 'mb-3');
 
-        const body = document.createElement('div');
-        body.classList.add('card-body');
+            const body = document.createElement('div');
+            body.classList.add('card-body');
 
-        const heading = document.createElement('h5');
-        heading.classList.add('card-title');
-        heading.textContent = file.file_name;
+            const heading = document.createElement('h5');
+            heading.classList.add('card-title');
+            heading.textContent = dependency.name;
 
-        body.appendChild(heading);
+            const version = document.createElement('p');
+            version.textContent = `Installed version: ${dependency.version}`;
 
-        if (file.dependencies) {
-            const list = document.createElement('ul');
-            list.classList.add('list-group', 'list-group-flush');
+            const ecosystem = document.createElement('p');
+            ecosystem.textContent = `Ecosystem: ${dependency.ecosystem}`;
 
-            file.dependencies.forEach(dependency => {
-                const item = document.createElement('li');
-                item.classList.add('list-group-item');
+            const source = document.createElement('p');
+            source.textContent = `Source: ${dependency.source_file}`;
 
-                item.textContent =
-                    `${dependency.name} - ${dependency.version}`;
+            const link = document.createElement('a');
+            link.href = `/dependencies/${dependency._id}`;
+            link.textContent = 'View details';
+            link.classList.add('btn', 'btn-outline-primary');
 
-                list.appendChild(item);
-            });
-
-            body.appendChild(list);
-        } else {
-            const status = document.createElement('p');
-            status.textContent = file.status;
-            body.appendChild(status);
-        }
-
-        section.appendChild(body);
-        resultsContent.appendChild(section);
-    });
+            body.append(heading, version, ecosystem, source, link);
+            card.appendChild(body);
+            resultsContent.appendChild(card);
+        });
+    }
 
     results.classList.remove('d-none');
 }
